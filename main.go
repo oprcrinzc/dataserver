@@ -8,8 +8,9 @@ import (
 func main() {
 	app := fiber.New()
 	app.Use(cors.New())
-	app.Get("/fetch/:where?", Fetch)
+	app.Get("/fetch/*/:where?", Fetch)
 	app.Get("/create/:name", Create)
 	app.Post("/update/:name", Update)
+	app.Post("/config/update/:name", UpdateConfig)
 	app.Listen(":8080")
 }

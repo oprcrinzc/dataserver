@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // type updateBody struct {
@@ -18,8 +19,34 @@ import (
 // 	WaterLevel float64
 // }
 
+func UpdateConfig(c *fiber.Ctx) error {
+	name := c.Params("name")
+	log.Info(name)
+	if name == "" {
+		return c.SendStatus(400)
+	}
+	// fa := fetch.Current()
+	fc := fetch.Config()
+	// ff := db.ConfigData{}
+	body := db.ConfigDataNoID{}
+	err := c.BodyParser(&body)
+	if err != nil {
+		log.Info(err)
+		return c.SendStatus(400)
+	}
+	// for i, n := range fa {
+	// 	if n.Name == name {
+	// 		ff = fc[i]
+	// 		break
+	// 	}
+	// }
+	return c.JSON(fc)
+	// return c.SendStatus(400)
+}
+
 func Update(c *fiber.Ctx) error {
 	name := c.Params("name")
+	// when := c.Params("*")
 	if name == "" {
 		return c.SendStatus(400)
 	}
@@ -76,23 +103,46 @@ func Create(c *fiber.Ctx) error {
 
 func Fetch(c *fiber.Ctx) error {
 	where := c.Params("where")
-	fc := fetch.Current()
+	when := c.Params("*")
 	names := []string{}
-
-	for _, n := range fc {
-		log.Info(n.Name)
+	fa := fetch.Current()
+	for _, n := range fa {
+		// log.Info(n.Name)
 		names = append(names, n.Name)
 	}
-	if where == "" || where == "current" {
-		return c.JSON(fc)
-	}
-	if contain(names, where) {
-		for i, n := range fc {
-			if n.Name == where {
-				return c.JSON(fc[i])
+	// var fc
+	if when == "config" {
+		targetID := []primitive.ObjectID{}
+		fc := fetch.Config()
+		for _, n := range fc {
+			// log.Info(n.TargetID)
+			targetID = append(targetID, n.TargetID)
+		}
+		if where == "" || where == "current" {
+			return c.JSON(fc)
+		}
+		if contain(names, where) {
+			for i, n := range fa {
+				if string(n.Name) == where {
+					return c.JSON(fc[i])
+				}
 			}
 		}
 	}
+	if when == "plant" {
+
+		if where == "" || where == "current" {
+			return c.JSON(fa)
+		}
+		if contain(names, where) {
+			for i, n := range fa {
+				if n.Name == where {
+					return c.JSON(fa[i])
+				}
+			}
+		}
+	}
+
 	return c.JSON("text no")
 }
 
