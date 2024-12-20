@@ -7,7 +7,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Current() []db.PlantData {
+func Workers() []db.Worker {
 	client := db.New()
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
@@ -15,10 +15,10 @@ func Current() []db.PlantData {
 		}
 	}()
 
-	coll := client.Database("plantData").Collection("current")
+	coll := client.Database("plantData").Collection("workers")
 	// {Key: "status", Value: "on"}
 	data, err := coll.Find(context.TODO(), bson.D{})
-	var res []db.PlantData
+	var res []db.Worker
 	if err != nil {
 		panic(err)
 	} else {
@@ -30,7 +30,7 @@ func Current() []db.PlantData {
 	return res
 }
 
-func Config() []db.ConfigData {
+func Configs() []db.ConfigData {
 	client := db.New()
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {

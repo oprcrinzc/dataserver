@@ -8,9 +8,15 @@ import (
 func main() {
 	app := fiber.New()
 	app.Use(cors.New())
-	app.Get("/fetch/*/:where?", Fetch)
-	app.Get("/create/:name", Create)
-	app.Post("/update/:name", Update)
-	app.Post("/config/update/:name", UpdateConfig)
+
+	// app.Get("/fetch/*/:where?", Fetch)
+	// app.Get("/create/:name", Create)
+	// app.Post("/update/:name", Update)
+	// app.Post("/config/update/:name", UpdateConfig)
+
+	app.Get("/fetch/:what?/:where?", Fetch)
+	app.Get("/gatekeeper/:who", Gatekeeper)
+	app.Post("/update/:what/:where", Update)
+
 	app.Listen(":8080")
 }

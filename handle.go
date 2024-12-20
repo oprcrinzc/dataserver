@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // type updateBody struct {
@@ -26,7 +25,7 @@ func UpdateConfig(c *fiber.Ctx) error {
 		return c.SendStatus(400)
 	}
 	// fa := fetch.Current()
-	fc := fetch.Config()
+	fc := fetch.Configs()
 	// ff := db.ConfigData{}
 	body := db.ConfigDataNoID{}
 	err := c.BodyParser(&body)
@@ -50,9 +49,9 @@ func Update(c *fiber.Ctx) error {
 	if name == "" {
 		return c.SendStatus(400)
 	}
-	fc := fetch.Current()
-	ff := db.PlantData{}
-	body := db.PlantDataNoID{}
+	fc := fetch.Workers()
+	ff := db.Worker{}
+	body := db.WorkerNoID{}
 	err := c.BodyParser(&body)
 	if err != nil {
 		log.Info(err)
@@ -87,7 +86,7 @@ func Create(c *fiber.Ctx) error {
 	if c.Params("name") == "" {
 		return c.SendStatus(400)
 	}
-	if write.Create[string, db.PlantDataNoID]("current", db.PlantDataNoID{
+	if write.Create[string, db.WorkerNoID]("current", db.WorkerNoID{
 		LastUpdate:  time.Now().String(),
 		Mode:        "auto",
 		Name:        c.Params("name"),
@@ -101,49 +100,64 @@ func Create(c *fiber.Ctx) error {
 	return c.SendStatus(400)
 }
 
+// type struct
+
 func Fetch(c *fiber.Ctx) error {
+	what := c.Params("what")
 	where := c.Params("where")
-	when := c.Params("*")
 	names := []string{}
-	fa := fetch.Current()
-	for _, n := range fa {
+	workers := fetch.Workers()
+	configs := fetch.Configs()
+	for _, n := range workers {
 		// log.Info(n.Name)
 		names = append(names, n.Name)
 	}
-	// var fc
-	if when == "config" {
-		targetID := []primitive.ObjectID{}
-		fc := fetch.Config()
-		for _, n := range fc {
-			// log.Info(n.TargetID)
-			targetID = append(targetID, n.TargetID)
-		}
-		if where == "" || where == "current" {
-			return c.JSON(fc)
-		}
+	if what == "" {
+		workersNconfigs := struct {
+			Workers []db.Worker
+			Configs []db.ConfigData
+		}{
+			Workers: workers,
+			Configs: configs}
+		return c.JSON(workersNconfigs)
+	}
+	if what == "config" && where != "" {
 		if contain(names, where) {
-			for i, n := range fa {
+			for i, n := range workers {
 				if string(n.Name) == where {
-					return c.JSON(fc[i])
+					return c.JSON(configs[i])
 				}
 			}
+		} else {
+			return c.JSON("not found")
 		}
 	}
-	if when == "plant" {
 
-		if where == "" || where == "current" {
-			return c.JSON(fa)
-		}
+	if what == "worker" && where != "" {
 		if contain(names, where) {
-			for i, n := range fa {
+			for i, n := range workers {
 				if n.Name == where {
-					return c.JSON(fa[i])
+					return c.JSON(workers[i])
 				}
 			}
+		} else {
+			return c.JSON("not found")
 		}
+	}
+
+	if what == "configs" {
+		return c.JSON(configs)
+	}
+
+	if what == "workers" {
+		return c.JSON(workers)
 	}
 
 	return c.JSON("text no")
+}
+
+func Gatekeeper(c *fiber.Ctx) error {
+	return c.JSON("")
 }
 
 func contain[T comparable](src []T, v T) bool {

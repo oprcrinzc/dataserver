@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Update(where string, what db.PlantData) bool {
+func Update(where string, what db.Worker) bool {
 	client := db.New()
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
