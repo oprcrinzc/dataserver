@@ -7,22 +7,22 @@ type Worker struct {
 	LastUpdate       string             `bson:"last_update" json:"last_update"`
 	Mode             string             `json:"mode"`
 	Name             string             `json:"name"`
-	Temperature      float64            `json:"temperature"`
-	Humidity         float64            `json:"humidity"`
-	WaterLevel       float64            `bson:"water_level" json:"water_level"`
-	WaterLevelTarget float64            `bson:"water_level_target" json:"water_level_target"`
+	Temperature      *float64           `json:"temperature"`
+	Humidity         *float64           `json:"humidity"`
+	WaterLevel       *float64           `bson:"water_level" json:"water_level"`
+	WaterLevelTarget *float64           `bson:"water_level_target" json:"water_level_target"`
 	Birth            int64              `json:"birth"`
 }
 
 type WorkerNoID struct {
-	LastUpdate       string  `bson:"last_update" json:"last_update"`
-	Mode             string  `json:"mode"`
-	Name             string  `json:"name"`
-	Temperature      float64 `json:"temperature"`
-	Humidity         float64 `json:"humidity"`
-	WaterLevel       float64 `bson:"water_level" json:"water_level"`
-	WaterLevelTarget float64 `bson:"water_level_target" json:"water_level_target"`
-	Birth            int64   `json:"birth"`
+	LastUpdate       string   `bson:"last_update" json:"last_update"`
+	Mode             string   `json:"mode"`
+	Name             string   `json:"name"`
+	Temperature      *float64 `json:"temperature"`
+	Humidity         *float64 `json:"humidity"`
+	WaterLevel       *float64 `bson:"water_level" json:"water_level"`
+	WaterLevelTarget *float64 `bson:"water_level_target" json:"water_level_target"`
+	Birth            int64    `json:"birth"`
 }
 
 type ConfigData struct {

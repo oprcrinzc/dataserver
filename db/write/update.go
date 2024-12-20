@@ -8,7 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Update(where string, what db.Worker) bool {
+func Update(what string, where db.Worker) bool {
 	client := db.New()
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
@@ -16,15 +16,17 @@ func Update(where string, what db.Worker) bool {
 		}
 	}()
 
-	coll := client.Database("plantData").Collection(where)
+	coll := client.Database("plantData").Collection(what)
 
-	res, err := coll.UpdateOne(context.TODO(), bson.D{{Key: "_id", Value: what.ID}},
+	res, err := coll.UpdateOne(context.TODO(), bson.D{{Key: "_id", Value: where.ID}},
 		bson.D{{Key: "$set", Value: bson.D{
-			{Key: "mode", Value: what.Mode},
-			{Key: "last_update", Value: what.LastUpdate},
-			{Key: "temperature", Value: what.Temperature},
-			{Key: "humidity", Value: what.Humidity},
-			{Key: "waterlevel", Value: what.WaterLevel}}}})
+			{Key: "name", Value: where.Name},
+			{Key: "mode", Value: where.Mode},
+			{Key: "last_update", Value: where.LastUpdate},
+			{Key: "temperature", Value: where.Temperature},
+			{Key: "humidity", Value: where.Humidity},
+			{Key: "water_level", Value: where.WaterLevel},
+			{Key: "water_level_target", Value: where.WaterLevelTarget}}}})
 	if err != nil {
 		return false
 	}

@@ -4,6 +4,7 @@ import (
 	"dataServer/db"
 	"dataServer/db/fetch"
 	"dataServer/db/write"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -43,7 +44,7 @@ func UpdateConfig(c *fiber.Ctx) error {
 	// return c.SendStatus(400)
 }
 
-func Update(c *fiber.Ctx) error {
+func Update_(c *fiber.Ctx) error {
 	name := c.Params("name")
 	// when := c.Params("*")
 	if name == "" {
@@ -66,13 +67,13 @@ func Update(c *fiber.Ctx) error {
 	if body.Mode == "auto" || body.Mode == "manual" {
 		ff.Mode = body.Mode
 	}
-	if body.Humidity != 0.0 {
+	if body.Humidity != nil {
 		ff.Humidity = body.Humidity
 	}
-	if body.Temperature != 0.0 {
+	if body.Temperature != nil {
 		ff.Temperature = body.Temperature
 	}
-	if body.WaterLevel != 0.0 {
+	if body.WaterLevel != nil {
 		ff.WaterLevel = body.WaterLevel
 	}
 	ff.LastUpdate = time.Now().String()
@@ -86,13 +87,13 @@ func Create(c *fiber.Ctx) error {
 	if c.Params("name") == "" {
 		return c.SendStatus(400)
 	}
-	if write.Create[string, db.WorkerNoID]("current", db.WorkerNoID{
+	if zero := 0.00; write.Create[string, db.WorkerNoID]("current", db.WorkerNoID{
 		LastUpdate:  time.Now().String(),
 		Mode:        "auto",
 		Name:        c.Params("name"),
-		Temperature: 0.00,
-		Humidity:    0.00,
-		WaterLevel:  0.00,
+		Temperature: &zero,
+		Humidity:    &zero,
+		WaterLevel:  &zero,
 		Birth:       time.Now().Unix(),
 	}) == true {
 		return c.SendStatus(201)
@@ -100,18 +101,63 @@ func Create(c *fiber.Ctx) error {
 	return c.SendStatus(400)
 }
 
-// type struct
+func Update(c *fiber.Ctx) error {
+	what := c.Params("what")
+	where := c.Params("where")
+
+	if what == "worker" && where != "" {
+		names, workers := getWorkersName()
+		worker := db.Worker{}
+		data := db.Worker{}
+		err := c.BodyParser(&data)
+		if err != nil {
+			log.Info(err.Error())
+			return c.SendStatus(400)
+		}
+		if !contain(names, where) {
+			return c.SendString(fmt.Sprintf("the \"%s\" does not exits", where))
+		}
+		for i, n := range names {
+			if n == data.Name {
+				worker = workers[i]
+			}
+		}
+		if !(worker.ID == data.ID) {
+			return c.SendString(fmt.Sprintf("the ID \"%v\" does not exits", data.ID))
+		}
+
+		if data.Humidity != nil {
+			worker.Humidity = data.Humidity
+		}
+		if data.Temperature != nil {
+			worker.Temperature = data.Temperature
+		}
+		if data.WaterLevel != nil {
+			worker.WaterLevel = data.WaterLevel
+		}
+		if data.WaterLevelTarget != nil {
+			worker.WaterLevelTarget = data.WaterLevelTarget
+		}
+		if data.Mode != "" {
+			worker.Mode = data.Mode
+		}
+		if data.Name != "" {
+			worker.Name = data.Name
+		}
+		worker.LastUpdate = time.Now().String()
+		write.Update("workers", worker)
+		return c.SendString("ok")
+	}
+
+	return c.SendStatus(400)
+}
 
 func Fetch(c *fiber.Ctx) error {
 	what := c.Params("what")
 	where := c.Params("where")
-	names := []string{}
+	names, _ := getWorkersName()
 	workers := fetch.Workers()
 	configs := fetch.Configs()
-	for _, n := range workers {
-		// log.Info(n.Name)
-		names = append(names, n.Name)
-	}
 	if what == "" {
 		workersNconfigs := struct {
 			Workers []db.Worker
@@ -157,6 +203,16 @@ func Fetch(c *fiber.Ctx) error {
 }
 
 func Gatekeeper(c *fiber.Ctx) error {
+	who := c.Params("who")
+	// workers := fetch.Workers()
+	names, _ := getWorkersName()
+	if contain(names, who) {
+		return c.SendString("ok")
+	}
+	return c.SendString("who are u?, huh")
+}
+
+func Register(c *fiber.Ctx) error {
 	return c.JSON("")
 }
 
@@ -167,4 +223,13 @@ func contain[T comparable](src []T, v T) bool {
 		}
 	}
 	return false
+}
+
+func getWorkersName() (names []string, workers []db.Worker) {
+	workers = fetch.Workers()
+	names = []string{}
+	for _, n := range workers {
+		names = append(names, n.Name)
+	}
+	return
 }

@@ -17,6 +17,7 @@ func main() {
 	app.Get("/fetch/:what?/:where?", Fetch)
 	app.Get("/gatekeeper/:who", Gatekeeper)
 	app.Post("/update/:what/:where", Update)
+	app.Post("/register/:what/:where", Register)
 
 	app.Listen(":8080")
 }
