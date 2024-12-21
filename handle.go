@@ -213,10 +213,10 @@ func Gatekeeper(c *fiber.Ctx) error {
 		Name: who,
 		Ip:   c.IP(),
 	})
-	return c.JSON(db.Shiranaihito{
-		Name: who,
-		Ip:   c.IP(),
-	})
+	// return c.JSON(db.Shiranaihito{
+	// 	Name: who,
+	// 	Ip:   c.IP(),
+	// })
 	return c.SendString("who are u?, huh")
 }
 
