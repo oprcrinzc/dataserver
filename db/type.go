@@ -9,8 +9,8 @@ type Worker struct {
 	Name             string             `json:"name"`
 	Temperature      *float64           `json:"temperature"`
 	Humidity         *float64           `json:"humidity"`
-	WaterLevel       *float64           `bson:"water_level" json:"water_level"`
-	WaterLevelTarget *float64           `bson:"water_level_target" json:"water_level_target"`
+	WaterLevel       *float64           `bson:"water_level" json:"water_level" form:"water_level"`
+	WaterLevelTarget *float64           `bson:"water_level_target" json:"water_level_target" form:"water_level_target"`
 	Birth            int64              `json:"birth"`
 }
 
@@ -23,6 +23,11 @@ type WorkerNoID struct {
 	WaterLevel       *float64 `bson:"water_level" json:"water_level"`
 	WaterLevelTarget *float64 `bson:"water_level_target" json:"water_level_target"`
 	Birth            int64    `json:"birth"`
+}
+
+type Shiranaihito struct {
+	Name string `bson:"name" json:"name"`
+	Ip   string `bson:"ip" json:"ip"`
 }
 
 type ConfigData struct {

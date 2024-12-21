@@ -87,7 +87,7 @@ func Create(c *fiber.Ctx) error {
 	if c.Params("name") == "" {
 		return c.SendStatus(400)
 	}
-	if zero := 0.00; write.Create[string, db.WorkerNoID]("current", db.WorkerNoID{
+	if zero := 0.00; write.New[string, db.WorkerNoID]("current", db.WorkerNoID{
 		LastUpdate:  time.Now().String(),
 		Mode:        "auto",
 		Name:        c.Params("name"),
@@ -105,8 +105,9 @@ func Update(c *fiber.Ctx) error {
 	what := c.Params("what")
 	where := c.Params("where")
 
-	if what == "worker" && where != "" {
+	if what == "workers" && where != "" {
 		names, workers := getWorkersName()
+		log.Info(workers)
 		worker := db.Worker{}
 		data := db.Worker{}
 		err := c.BodyParser(&data)
@@ -117,15 +118,14 @@ func Update(c *fiber.Ctx) error {
 		if !contain(names, where) {
 			return c.SendString(fmt.Sprintf("the \"%s\" does not exits", where))
 		}
-		for i, n := range names {
-			if n == data.Name {
+		for i, n := range workers {
+			if n.Name == where {
 				worker = workers[i]
 			}
 		}
 		if !(worker.ID == data.ID) {
 			return c.SendString(fmt.Sprintf("the ID \"%v\" does not exits", data.ID))
 		}
-
 		if data.Humidity != nil {
 			worker.Humidity = data.Humidity
 		}
@@ -138,7 +138,7 @@ func Update(c *fiber.Ctx) error {
 		if data.WaterLevelTarget != nil {
 			worker.WaterLevelTarget = data.WaterLevelTarget
 		}
-		if data.Mode != "" {
+		if data.Mode == "manual" || data.Mode == "auto" {
 			worker.Mode = data.Mode
 		}
 		if data.Name != "" {
@@ -146,7 +146,7 @@ func Update(c *fiber.Ctx) error {
 		}
 		worker.LastUpdate = time.Now().String()
 		write.Update("workers", worker)
-		return c.SendString("ok")
+		return c.JSON(worker)
 	}
 
 	return c.SendStatus(400)
@@ -209,6 +209,14 @@ func Gatekeeper(c *fiber.Ctx) error {
 	if contain(names, who) {
 		return c.SendString("ok")
 	}
+	write.New[string, db.Shiranaihito]("shiranaihito", db.Shiranaihito{
+		Name: who,
+		Ip:   c.IP(),
+	})
+	return c.JSON(db.Shiranaihito{
+		Name: who,
+		Ip:   c.IP(),
+	})
 	return c.SendString("who are u?, huh")
 }
 
@@ -225,11 +233,11 @@ func contain[T comparable](src []T, v T) bool {
 	return false
 }
 
-func getWorkersName() (names []string, workers []db.Worker) {
-	workers = fetch.Workers()
-	names = []string{}
+func getWorkersName() ([]string, []db.Worker) {
+	workers := fetch.Workers()
+	names := []string{}
 	for _, n := range workers {
 		names = append(names, n.Name)
 	}
-	return
+	return names, workers
 }
