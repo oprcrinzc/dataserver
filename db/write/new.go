@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
-func New[W comparable, G comparable](where string, what G) bool {
+func New[G comparable](where string, what G) bool {
 	client := db.New()
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {

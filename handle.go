@@ -11,95 +11,7 @@ import (
 	"github.com/gofiber/fiber/v2/log"
 )
 
-// type updateBody struct {
-// 	Name string
-// 	Mode string
-// 	Temperature float64
-// 	Humidity float64
-// 	WaterLevel float64
-// }
-
-func UpdateConfig(c *fiber.Ctx) error {
-	name := c.Params("name")
-	log.Info(name)
-	if name == "" {
-		return c.SendStatus(400)
-	}
-	// fa := fetch.Current()
-	fc := fetch.Configs()
-	// ff := db.ConfigData{}
-	body := db.ConfigDataNoID{}
-	err := c.BodyParser(&body)
-	if err != nil {
-		log.Info(err)
-		return c.SendStatus(400)
-	}
-	// for i, n := range fa {
-	// 	if n.Name == name {
-	// 		ff = fc[i]
-	// 		break
-	// 	}
-	// }
-	return c.JSON(fc)
-	// return c.SendStatus(400)
-}
-
-func Update_(c *fiber.Ctx) error {
-	name := c.Params("name")
-	// when := c.Params("*")
-	if name == "" {
-		return c.SendStatus(400)
-	}
-	fc := fetch.Workers()
-	ff := db.Worker{}
-	body := db.WorkerNoID{}
-	err := c.BodyParser(&body)
-	if err != nil {
-		log.Info(err)
-		return c.SendStatus(400)
-	}
-	for _, n := range fc {
-		if n.Name == name {
-			ff = n
-			break
-		}
-	}
-	if body.Mode == "auto" || body.Mode == "manual" {
-		ff.Mode = body.Mode
-	}
-	if body.Humidity != nil {
-		ff.Humidity = body.Humidity
-	}
-	if body.Temperature != nil {
-		ff.Temperature = body.Temperature
-	}
-	if body.WaterLevel != nil {
-		ff.WaterLevel = body.WaterLevel
-	}
-	ff.LastUpdate = time.Now().String()
-	if write.Update("current", ff) {
-		return c.JSON(ff)
-	}
-	return c.SendStatus(400)
-}
-
-func Create(c *fiber.Ctx) error {
-	if c.Params("name") == "" {
-		return c.SendStatus(400)
-	}
-	if zero := 0.00; write.New[string, db.WorkerNoID]("current", db.WorkerNoID{
-		LastUpdate:  time.Now().String(),
-		Mode:        "auto",
-		Name:        c.Params("name"),
-		Temperature: &zero,
-		Humidity:    &zero,
-		WaterLevel:  &zero,
-		Birth:       time.Now().Unix(),
-	}) == true {
-		return c.SendStatus(201)
-	}
-	return c.SendStatus(400)
-}
+var zero float64 = 0
 
 func Update(c *fiber.Ctx) error {
 	what := c.Params("what")
@@ -206,22 +118,58 @@ func Gatekeeper(c *fiber.Ctx) error {
 	who := c.Params("who")
 	// workers := fetch.Workers()
 	names, _ := getWorkersName()
+	ip := c.IP()
 	if contain(names, who) {
 		return c.SendString("ok")
 	}
-	write.New[string, db.Shiranaihito]("shiranaihito", db.Shiranaihito{
+	shiran := fetch.Shiranaihito()
+	for _, n := range shiran {
+		if n.Name == who {
+			write.Update("shiranaihito", db.Shiranaihito{
+				ID:   n.ID,
+				Name: who,
+				Ip:   ip,
+			})
+			return c.SendString("go to register")
+		}
+	}
+	write.New("shiranaihito", db.ShiranaihitoNoID{
 		Name: who,
-		Ip:   c.IP(),
+		Ip:   ip,
 	})
-	// return c.JSON(db.Shiranaihito{
-	// 	Name: who,
-	// 	Ip:   c.IP(),
-	// })
-	return c.SendString("who are u?, huh")
+	return c.SendString("go to register")
 }
 
 func Register(c *fiber.Ctx) error {
-	return c.JSON("")
+	what := c.Params("what")
+	where := c.Params("where")
+	if what == "workers" && where != "" {
+		shiranai := fetch.Shiranaihito()
+		for _, n := range shiranai {
+			if n.Name == where {
+				data := db.WorkerNoID{}
+				err := c.BodyParser(&data)
+				if err != nil {
+					log.Info(err.Error())
+					return c.SendStatus(400)
+				}
+				if write.New("workers", db.WorkerNoID{
+					Name:             where,
+					Mode:             ternary(data.Mode == "", "Auto", data.Mode),
+					LastUpdate:       time.Now().String(),
+					Temperature:      ternary(data.Temperature == nil, &zero, data.Temperature),
+					Humidity:         ternary(data.Humidity == nil, &zero, data.Humidity),
+					WaterLevel:       ternary(data.WaterLevel == nil, &zero, data.WaterLevel),
+					WaterLevelTarget: ternary(data.WaterLevelTarget == nil, &zero, data.WaterLevelTarget),
+					Birth:            time.Now().Unix(),
+				}) {
+					return c.SendStatus(201)
+				}
+			}
+		}
+		return c.SendString("shiran!")
+	}
+	return c.SendStatus(400)
 }
 
 func contain[T comparable](src []T, v T) bool {
@@ -240,4 +188,11 @@ func getWorkersName() ([]string, []db.Worker) {
 		names = append(names, n.Name)
 	}
 	return names, workers
+}
+
+func ternary[T comparable](condition bool, ifTrue T, ifFalse T) T {
+	if condition {
+		return ifTrue
+	}
+	return ifFalse
 }

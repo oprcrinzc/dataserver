@@ -26,6 +26,11 @@ type WorkerNoID struct {
 }
 
 type Shiranaihito struct {
+	ID   primitive.ObjectID `bson:"_id" json:"id"`
+	Name string             `bson:"name" json:"name"`
+	Ip   string             `bson:"ip" json:"ip"`
+}
+type ShiranaihitoNoID struct {
 	Name string `bson:"name" json:"name"`
 	Ip   string `bson:"ip" json:"ip"`
 }

@@ -30,6 +30,29 @@ func Workers() []db.Worker {
 	return res
 }
 
+func Shiranaihito() []db.Shiranaihito {
+	client := db.New()
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	coll := client.Database("plantData").Collection("shiranaihito")
+	// {Key: "status", Value: "on"}
+	data, err := coll.Find(context.TODO(), bson.D{})
+	var res []db.Shiranaihito
+	if err != nil {
+		panic(err)
+	} else {
+		if err = data.All(context.TODO(), &res); err != nil {
+			panic(err)
+		}
+		// fmt.Println(res)
+	}
+	return res
+}
+
 func Configs() []db.ConfigData {
 	client := db.New()
 	defer func() {
