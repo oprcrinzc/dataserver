@@ -5,9 +5,11 @@ import (
 	"dataServer/db"
 
 	"github.com/gofiber/fiber/v2/log"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func New(where string, what any) bool {
+func Del(where string, what primitive.ObjectID) bool {
 	client := db.New()
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
@@ -16,7 +18,7 @@ func New(where string, what any) bool {
 	}()
 
 	coll := client.Database("plantData").Collection(where)
-	res, err := coll.InsertOne(context.TODO(), what)
+	res, err := coll.DeleteOne(context.TODO(), bson.D{{Key: "_id", Value: what}})
 	if err != nil {
 		log.Infof(err.Error())
 		return false

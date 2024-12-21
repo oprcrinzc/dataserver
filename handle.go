@@ -151,7 +151,12 @@ func Register(c *fiber.Ctx) error {
 				err := c.BodyParser(&data)
 				if err != nil {
 					log.Info(err.Error())
-					return c.SendStatus(400)
+					if err.Error() != "Unprocessable Entity" {
+						return c.SendStatus(400)
+					}
+				}
+				if !write.Del("shiranaihito", n.ID) {
+					return c.SendString("please go to gatekeeper")
 				}
 				if write.New("workers", db.WorkerNoID{
 					Name:             where,
