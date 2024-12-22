@@ -16,10 +16,11 @@ var zero float64 = 0
 func Update(c *fiber.Ctx) error {
 	what := c.Params("what")
 	where := c.Params("where")
+	// log.Info("" + what + " " + where)
 
 	if what == "workers" && where != "" {
 		names, workers := getWorkersName()
-		log.Info(workers)
+		// log.Info(workers)
 		worker := db.Worker{}
 		data := db.Worker{}
 		err := c.BodyParser(&data)
@@ -27,7 +28,7 @@ func Update(c *fiber.Ctx) error {
 			log.Info(err.Error())
 			return c.SendStatus(400)
 		}
-		if !contain(names, where) {
+		if r, _ := contain(names, where); !r {
 			return c.SendString(fmt.Sprintf("the \"%s\" does not exits", where))
 		}
 		for i, n := range workers {
@@ -80,7 +81,7 @@ func Fetch(c *fiber.Ctx) error {
 		return c.JSON(workersNconfigs)
 	}
 	if what == "config" && where != "" {
-		if contain(names, where) {
+		if r, _ := contain(names, where); r {
 			for i, n := range workers {
 				if string(n.Name) == where {
 					return c.JSON(configs[i])
@@ -92,7 +93,7 @@ func Fetch(c *fiber.Ctx) error {
 	}
 
 	if what == "worker" && where != "" {
-		if contain(names, where) {
+		if r, _ := contain(names, where); r {
 			for i, n := range workers {
 				if n.Name == where {
 					return c.JSON(workers[i])
@@ -117,10 +118,11 @@ func Fetch(c *fiber.Ctx) error {
 func Gatekeeper(c *fiber.Ctx) error {
 	who := c.Params("who")
 	// workers := fetch.Workers()
-	names, _ := getWorkersName()
+	names, workers := getWorkersName()
 	ip := c.IP()
-	if contain(names, who) {
-		return c.SendString("ok")
+	if r, at := contain(names, who); r {
+		log.Info(workers[*at].ID.Hex())
+		return c.JSON(workers[*at].ID.Hex())
 	}
 	shiran := fetch.Shiranaihito()
 	for _, n := range shiran {
@@ -177,13 +179,13 @@ func Register(c *fiber.Ctx) error {
 	return c.SendStatus(400)
 }
 
-func contain[T comparable](src []T, v T) bool {
-	for _, i := range src {
+func contain[T comparable](src []T, v T) (bool, *int) {
+	for h, i := range src {
 		if v == i {
-			return true
+			return true, &h
 		}
 	}
-	return false
+	return false, nil
 }
 
 func getWorkersName() ([]string, []db.Worker) {
