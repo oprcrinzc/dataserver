@@ -18,7 +18,7 @@ func Update(what string, where any) bool {
 
 	coll := client.Database("plantData").Collection(what)
 	if worker, ok := where.(db.Worker); ok {
-		res, err := coll.UpdateOne(context.TODO(), bson.D{{Key: "_id", Value: worker.ID}},
+		_, err := coll.UpdateOne(context.TODO(), bson.D{{Key: "_id", Value: worker.ID}},
 			bson.D{{Key: "$set", Value: bson.D{
 				{Key: "name", Value: worker.Name},
 				{Key: "mode", Value: worker.Mode},
@@ -30,7 +30,7 @@ func Update(what string, where any) bool {
 		if err != nil {
 			return false
 		}
-		log.Info(res)
+		log.Info("Updated " + worker.ID.Hex())
 		return true
 	}
 	if shiranai, ok := where.(db.Shiranaihito); ok {
