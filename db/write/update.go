@@ -34,14 +34,14 @@ func Update(what string, where any) bool {
 		return true
 	}
 	if shiranai, ok := where.(db.Shiranaihito); ok {
-		res, err := coll.UpdateOne(context.TODO(), bson.D{{Key: "_id", Value: shiranai.ID}},
+		_, err := coll.UpdateOne(context.TODO(), bson.D{{Key: "_id", Value: shiranai.ID}},
 			bson.D{{Key: "$set", Value: bson.D{
 				{Key: "name", Value: shiranai.Name},
 				{Key: "ip", Value: shiranai.Ip}}}})
 		if err != nil {
 			return false
 		}
-		log.Info(res)
+		log.Info("Updated " + shiranai.ID.Hex())
 		return true
 	}
 	return false

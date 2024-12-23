@@ -3,6 +3,7 @@ package write
 import (
 	"context"
 	"dataServer/db"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2/log"
 )
@@ -21,6 +22,6 @@ func New(where string, what any) bool {
 		log.Infof(err.Error())
 		return false
 	}
-	log.Info(res)
+	log.Info(fmt.Sprintf("created %v", res))
 	return true
 }

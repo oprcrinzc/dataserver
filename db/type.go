@@ -35,6 +35,42 @@ type ShiranaihitoNoID struct {
 	Ip   string `bson:"ip" json:"ip"`
 }
 
+type Temperature struct {
+	ID          primitive.ObjectID `bson:"_id" json:"id"`
+	Name        string             `bson:"name" json:"name"`
+	Temperature *float64           `json:"temperature"`
+	When        int64              `bson:"when" json:"when"`
+}
+type TemperatureNoID struct {
+	Name        string   `bson:"name" json:"name"`
+	Temperature *float64 `json:"temperature"`
+	When        int64    `bson:"when" json:"when"`
+}
+
+type Humidity struct {
+	ID       primitive.ObjectID `bson:"_id" json:"id"`
+	Name     string             `bson:"name" json:"name"`
+	Humidity *float64           `json:"humidity"`
+	When     int64              `bson:"when" json:"when"`
+}
+type HumidityNoID struct {
+	Name     string   `bson:"name" json:"name"`
+	Humidity *float64 `json:"humidity"`
+	When     int64    `bson:"when" json:"when"`
+}
+
+type WaterLevel struct {
+	ID         primitive.ObjectID `bson:"_id" json:"id"`
+	Name       string             `bson:"name" json:"name"`
+	WaterLevel *float64           `bson:"water_level" json:"water_level"`
+	When       int64              `bson:"when" json:"when"`
+}
+type WaterLevelNoID struct {
+	Name       string   `bson:"name" json:"name"`
+	WaterLevel *float64 `bson:"water_level" json:"water_level"`
+	When       int64    `bson:"when" json:"when"`
+}
+
 type ConfigData struct {
 	ID                primitive.ObjectID `bson:"_id" json:"id"`
 	TargetID          primitive.ObjectID `bson:"target_id" json:"target_id"`
