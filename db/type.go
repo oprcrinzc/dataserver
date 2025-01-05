@@ -59,6 +59,20 @@ type HumidityNoID struct {
 	When     int64    `bson:"when" json:"when"`
 }
 
+type HumidityTemperature struct {
+	ID          primitive.ObjectID `bson:"_id" json:"id"`
+	Name        string             `bson:"name" json:"name"`
+	Humidity    *float64           `json:"humidity"`
+	Temperature *float64           `json:"temperature"`
+	When        int64              `bson:"when" json:"when"`
+}
+type HumidityTemperatureNoID struct {
+	Name        string   `bson:"name" json:"name"`
+	Humidity    *float64 `json:"humidity"`
+	Temperature *float64 `json:"temperature"`
+	When        int64    `bson:"when" json:"when"`
+}
+
 type WaterLevel struct {
 	ID         primitive.ObjectID `bson:"_id" json:"id"`
 	Name       string             `bson:"name" json:"name"`

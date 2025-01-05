@@ -69,6 +69,12 @@ func Update(c *fiber.Ctx) error {
 		// 	Humidity: worker.Humidity,
 		// 	When:     time.Now().Unix(),
 		// })
+		write.New("logs", db.HumidityTemperatureNoID{
+			Name:        worker.Name,
+			Humidity:    worker.Humidity,
+			Temperature: worker.Temperature,
+			When:        time.Now().Unix(),
+		})
 		return c.JSON(worker)
 	}
 
