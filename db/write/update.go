@@ -26,7 +26,8 @@ func Update(what string, where any) bool {
 				{Key: "temperature", Value: worker.Temperature},
 				{Key: "humidity", Value: worker.Humidity},
 				{Key: "water_level", Value: worker.WaterLevel},
-				{Key: "water_level_target", Value: worker.WaterLevelTarget}}}})
+				{Key: "water_level_target", Value: worker.WaterLevelTarget},
+				{Key: "water_level_to_fill", Value: worker.WaterLevelToFill}}}})
 		if err != nil {
 			return false
 		}

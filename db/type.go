@@ -11,6 +11,7 @@ type Worker struct {
 	Humidity         *float64           `json:"humidity"`
 	WaterLevel       *float64           `bson:"water_level" json:"water_level" form:"water_level"`
 	WaterLevelTarget *float64           `bson:"water_level_target" json:"water_level_target" form:"water_level_target"`
+	WaterLevelToFill *float64           `bson:"water_level_to_fill" json:"water_level_to_fill" form:"water_level_to_fill"`
 	Birth            int64              `json:"birth"`
 }
 
@@ -22,6 +23,7 @@ type WorkerNoID struct {
 	Humidity         *float64 `json:"humidity"`
 	WaterLevel       *float64 `bson:"water_level" json:"water_level"`
 	WaterLevelTarget *float64 `bson:"water_level_target" json:"water_level_target"`
+	WaterLevelToFill *float64 `bson:"water_level_to_fill" json:"water_level_to_fill" form:"water_level_to_fill"`
 	Birth            int64    `json:"birth"`
 }
 
@@ -98,4 +100,14 @@ type ConfigDataNoID struct {
 	TargetTemperature float64            `bson:"target_temperature" json:"target_temperature"`
 	TargetHumidity    float64            `bson:"target_humidity" json:"target_humidity"`
 	TargetLight       float64            `bson:"target_light" json:"target_light"`
+}
+
+type LogsNoID struct {
+	Name             string   `bson:"name" json:"name"`
+	Humidity         *float64 `json:"humidity"`
+	Temperature      *float64 `json:"temperature"`
+	WaterLevel       *float64 `bson:"water_level" json:"water_level"`
+	WaterLevelTarget *float64 `bson:"water_level_target" json:"water_level_target"`
+	WaterLevelToFill *float64 `bson:"water_level_to_fill" json:"water_level_to_fill" form:"water_level_to_fill"`
+	When             int64    `bson:"when" json:"when"`
 }

@@ -50,6 +50,11 @@ func Update(c *fiber.Ctx) error {
 		}
 		if data.WaterLevelTarget != nil {
 			worker.WaterLevelTarget = data.WaterLevelTarget
+			// log.Info(&data.WaterLevelTarget)
+		}
+		if data.WaterLevelToFill != nil {
+			worker.WaterLevelToFill = data.WaterLevelToFill
+			// log.Info(&data.WaterLevelToFill)
 		}
 		if data.Mode == "manual" || data.Mode == "auto" {
 			worker.Mode = data.Mode
@@ -69,11 +74,14 @@ func Update(c *fiber.Ctx) error {
 		// 	Humidity: worker.Humidity,
 		// 	When:     time.Now().Unix(),
 		// })
-		write.New("logs", db.HumidityTemperatureNoID{
-			Name:        worker.Name,
-			Humidity:    worker.Humidity,
-			Temperature: worker.Temperature,
-			When:        time.Now().Unix(),
+		write.New("logs", db.LogsNoID{
+			Name:             worker.Name,
+			Humidity:         worker.Humidity,
+			Temperature:      worker.Temperature,
+			WaterLevel:       worker.WaterLevel,
+			WaterLevelTarget: worker.WaterLevelTarget,
+			WaterLevelToFill: worker.WaterLevelToFill,
+			When:             time.Now().Unix(),
 		})
 		return c.JSON(worker)
 	}
