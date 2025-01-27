@@ -50,11 +50,9 @@ func Update(c *fiber.Ctx) error {
 		}
 		if data.WaterLevelTarget != nil {
 			worker.WaterLevelTarget = data.WaterLevelTarget
-			// log.Info(&data.WaterLevelTarget)
 		}
 		if data.WaterLevelToFill != nil {
 			worker.WaterLevelToFill = data.WaterLevelToFill
-			// log.Info(&data.WaterLevelToFill)
 		}
 		if data.Mode == "manual" || data.Mode == "auto" {
 			worker.Mode = data.Mode
@@ -64,16 +62,6 @@ func Update(c *fiber.Ctx) error {
 		}
 		worker.LastUpdate = time.Now().String()
 		write.Update("workers", worker)
-		// write.New("temperature", db.TemperatureNoID{
-		// 	Name:        worker.Name,
-		// 	Temperature: worker.Temperature,
-		// 	When:        time.Now().Unix(),
-		// })
-		// write.New("humidity", db.HumidityNoID{
-		// 	Name:     worker.Name,
-		// 	Humidity: worker.Humidity,
-		// 	When:     time.Now().Unix(),
-		// })
 		write.New("logs", db.LogsNoID{
 			Name:             worker.Name,
 			Humidity:         worker.Humidity,
@@ -85,7 +73,6 @@ func Update(c *fiber.Ctx) error {
 		})
 		return c.JSON(worker)
 	}
-
 	return c.SendStatus(400)
 }
 
@@ -173,6 +160,9 @@ func Register(c *fiber.Ctx) error {
 		shiranai := fetch.Shiranaihito()
 		for _, n := range shiranai {
 			if n.Name == where {
+				if n.Ip != c.IP() {
+					return c.SendStatus(400)
+				}
 				data := db.WorkerNoID{}
 				err := c.BodyParser(&data)
 				if err != nil {
