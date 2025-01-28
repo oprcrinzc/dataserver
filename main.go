@@ -38,4 +38,5 @@ func main() {
 	}
 	log.Info(config.Ip + ":" + config.Port)
 	app.Listen(config.Ip + ":" + config.Port)
+	// app.Listen(":8888")
 }
