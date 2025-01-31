@@ -29,8 +29,8 @@ func main() {
 		log.Info("config file error: " + err.Error())
 	}
 	if config.Ip == "" {
-		log.Info("ip error")
-		os.Exit(1)
+		log.Info("wlan ip")
+		// os.Exit(1)
 	}
 	if config.Port == "" {
 		log.Info("port error")
@@ -38,5 +38,6 @@ func main() {
 	}
 	log.Info(config.Ip + ":" + config.Port)
 	app.Listen(config.Ip + ":" + config.Port)
+	// app.Listen(":" + config.Port)
 	// app.Listen(":8888")
 }
